@@ -7,13 +7,13 @@ A clean, customizable assignment template with themed problem boxes, multi-autho
 Initialize a new project from the template:
 
 ```bash
-typst init @preview/assignment-template:0.1.0
+typst init @preview/stux-assignment:0.1.0
 ```
 
 Or import it manually in an existing file:
 
 ```typst
-#import "@preview/assignment-template:0.1.0": *
+#import "@preview/stux-assignment:0.1.0": *
 
 #show: assignment.with(
   title: "Assignment - 1",
@@ -80,7 +80,7 @@ For group assignments, set `num_of_authors` and pass an `authors` array. The hea
 ```
 
 ```typst
-#import "@preview/assignment-template:0.1.0": *
+#import "@preview/stux-assignment:0.1.0": *
 
 #show: assignment.with(
   title: "Group Assignment - 1",
