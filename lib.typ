@@ -9,31 +9,35 @@
 
 // Internal state to share theme colors with problem/solution functions
 #let _theme-state = state("assignment-theme", themes.teal)
+#let _show-solutions-state = state("assignment-show-solutions", true)
 
 // ── Assignment template ────────────────────────────────────────────────────────
 // Parameters:
 //   author, email, roll   — single-author shorthand (default)
-//   num_of_authors        — set > 1 to enable multi-author table layout
-//   authors               — array of (name, email, roll) dicts (required when num_of_authors > 1)
+//   num-of-authors        — set > 1 to enable multi-author table layout
+//   authors               — array of (name, email, roll) dicts (required when num-of-authors > 1)
 //   theme                 — theme name string ("teal", "purple", …) or custom (bg: …, fr: …) dictionary
 //   font-size, font-family — document-wide typography overrides
+//   show-solutions        — set to false to hide all solution blocks
 #let assignment(
   title: "Assignment",
   author: "Student Name",
   email: "email@example.com",
   roll: "123456",
-  num_of_authors: 1,
+  num-of-authors: 1,
   authors: none,
   course: "Course Name",
   date: datetime.today().display(),
   theme: "teal",
   font-size: 11pt,
   font-family: "Linux Libertine",
+  show-solutions: true,
   body
 ) = {
   // Resolve theme colors
   let colors = if type(theme) == str { themes.at(theme) } else { theme }
   _theme-state.update(colors)
+  _show-solutions-state.update(show-solutions)
 
   // Resolve author list
   let author-list = if authors != none { authors }
@@ -44,25 +48,36 @@
   set text(font: font-family, size: font-size, lang: "en")
   set par(justify: true, first-line-indent: 0pt)
 
-  if num_of_authors > 1 {
+  if num-of-authors > 1 {
     // ── Multi-author table header ──────────────────────────────────────────
-        align(center)[*Course:* #course] 
-        v(-0.5cm)
-        align(center)[#text(weight: "bold", size: 14pt)[#title]]
-        v(-0.4cm)
-        align(center)[*Date:* #date]
-        v(-0.1cm)
-        line(length: 100%, stroke: 1.5pt)
-        v(-0.3cm)
+    if course != none {
+      align(center)[*Course:* #course]
+      v(-0.5cm)
+    }
+    if title != none {
+      align(center)[#text(weight: "bold", size: 14pt)[#title]]
+      v(-0.4cm)
+    }
+    if date != none {
+      align(center)[*Date:* #date]
+      v(-0.1cm)
+    }
+    line(length: 100%, stroke: 1.5pt)
+    v(-0.3cm)
+    let roll-cells = if author-list.filter(a => a.roll != none).len() > 0 {
+      author-list.map(a => if a.roll != none { text()[Roll: #a.roll] } else { [] })
+    } else {
+      ()
+    }
     table(
-      columns: (1fr,) * num_of_authors,
+      columns: (1fr,) * num-of-authors,
       align: center + horizon,
       stroke: 0pt,
       inset: 3pt,
       // Author names
       ..author-list.map(a => text(weight: "bold")[#a.name]),
       // Author roll numbers
-      ..author-list.map(a => text()[Roll: #a.roll]),
+      ..roll-cells,
     )
   } else {
     // ── Single-author header ───────────────────────────────────────────────
@@ -71,14 +86,14 @@
       columns: (1fr, 1fr),
       gutter: 1em,
       align(left)[
-        #text(size: 14pt, weight: "bold")[#a.name] \
-        Email: #link("mailto:" + a.email)[#a.email] \
-        Roll: #a.roll
+        #if a.name != none [#text(size: 14pt, weight: "bold")[#a.name] #linebreak()]
+        #if a.email != none [Email: #link("mailto:" + a.email)[#a.email] #linebreak()]
+        #if a.roll != none [Roll: #a.roll]
       ],
       align(right)[
-        #text(size: 14pt, weight: "bold")[#title] \
-        Course: #text(size: 11pt)[#course] \
-        Date: #date
+        #if title != none [#text(size: 14pt, weight: "bold")[#title] #linebreak()]
+        #if course != none [Course: #text(size: 11pt)[#course] #linebreak()]
+        #if date != none [Date: #date]
       ]
     )
   }
@@ -94,7 +109,7 @@
     let colors = _theme-state.get()
     let p-num = problem-counter.display()
     block(
-      width: 100%,  
+      width: 100%,
       fill: colors.bg,
       stroke: (left: 2pt + colors.fr),
       radius: 5pt,
@@ -112,19 +127,20 @@
 
 // ── Solution block ─────────────────────────────────────────────────────────────
 #let solution(body) = {
-  context{
-  let colors = _theme-state.get()
-  block(
-    width: 100%,
-    breakable: true,
-    inset: (top: 0.5em, bottom: 0.5em, left: 1.5em, right: 1em),
-    [
-      #text(style: "italic", weight: "bold")[Solution:]
-      #parbreak()
-      #body
-    ]
-  )}
-  v(0.5cm)
+  context {
+    if _show-solutions-state.get() {
+      let colors = _theme-state.get()
+      block(
+        width: 100%,
+        breakable: true,
+        inset: (top: 0.5em, bottom: 0.5em, left: 1.5em, right: 1em),
+        [
+          #text(style: "italic", weight: "bold")[Solution:]
+          #parbreak()
+          #body
+        ]
+      )
+      v(0.5cm)
+    }
+  }
 }
-
-
