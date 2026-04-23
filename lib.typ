@@ -103,11 +103,15 @@
 
 // ── Problem box ────────────────────────────────────────────────────────────────
 #let problem-counter = counter("problem")
-#let problem(title: none, body) = {
+#let problem(title: none, label: none, body) = {
   problem-counter.step()
   context {
     let colors = _theme-state.get()
     let p-num = problem-counter.display()
+    {
+      show figure: none
+      [#figure(kind: "_stux-assignment-problem", supplement: "Problem", numbering: (..args) => str(p-num), none);#label]
+    }
     block(
       width: 100%,
       fill: colors.bg,
