@@ -132,7 +132,7 @@ Defaults are `11pt` and `"Linux Libertine"`.
 
 ## Template Functions
 
-- **`#problem(title: none)[…]`** — Numbered problem box styled with the active theme. Optional `title` appears after the number.
+- **`#problem(title: none, label: none)[…]`** — Numbered problem box styled with the active theme. Optional `title` appears after the number and `label` can be referenced elsewhere.
 - **`#solution[…]`** — Indented solution block with an italic "Solution:" label. Hidden when `show-solutions: false`.
 >>>>>>> 365fff2 (Add solution toggle)
 
