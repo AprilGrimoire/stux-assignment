@@ -2,9 +2,9 @@
 
 #show: assignment.with(
   title: "Assignment - 1",
-  author: "Student Name",
-  email: "email@example.com",
-  roll: "123456",
+  authors: (
+    (name: "Student Name", email: "email@example.com", roll: "123456"),
+  ),
   course: "Course Name",
   date: datetime.today().display("[month repr:long] [day], [year]"),
   theme: "teal", // available: "teal", "purple", "brown", "red", "gray"

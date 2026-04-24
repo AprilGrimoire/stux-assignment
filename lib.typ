@@ -12,18 +12,18 @@
 
 // ── Assignment template ────────────────────────────────────────────────────────
 // Parameters:
-//   author, email, roll   — single-author shorthand (default)
-//   num_of_authors        — set > 1 to enable multi-author table layout
-//   authors               — array of (name, email, roll) dicts (required when num_of_authors > 1)
+//   author, email, roll   — legacy single-author shorthand
+//   num_of_authors        — legacy multi-author switch
+//   authors               — preferred array of (name, email, roll) dicts
 //   theme                 — theme name string ("teal", "purple", …) or custom (bg: …, fr: …) dictionary
 //   font-size, font-family — document-wide typography overrides
 #let assignment(
   title: "Assignment",
-  author: "Student Name",
-  email: "email@example.com",
-  roll: "123456",
-  num_of_authors: 1,
-  authors: none,
+  author: auto,
+  email: auto,
+  roll: auto,
+  num_of_authors: auto,
+  authors: auto,
   course: "Course Name",
   date: datetime.today().display(),
   theme: "teal",
@@ -31,13 +31,27 @@
   font-family: "Linux Libertine",
   body
 ) = {
-  // Resolve theme colors
   let colors = if type(theme) == str { themes.at(theme) } else { theme }
   _theme-state.update(colors)
 
-  // Resolve author list
-  let author-list = if authors != none { authors }
-    else { ((name: author, email: email, roll: roll),) }
+  let authors-provided = authors != auto and authors != none
+  let legacy-author-fields-provided = author != auto or email != auto or roll != auto
+  let legacy-count-provided = num_of_authors != auto
+  assert(
+    not (authors-provided and (legacy-author-fields-provided or legacy-count-provided)),
+    message: "Pass either `authors` or the legacy `author`/`email`/`roll`/`num_of_authors` arguments, not both.",
+  )
+  let author-list = if authors-provided {
+    authors
+  } else if legacy-author-fields-provided {
+    ((
+      name: if author != auto { author } else { none },
+      email: if email != auto { email } else { none },
+      roll: if roll != auto { roll } else { none },
+    ),)
+  } else {
+    ((name: "Student Name", email: "email@example.com", roll: "123456"),)
+  }
 
   let document-authors = author-list.filter(a => a.name != none).map(a => a.name)
   set document(title: title, author: document-authors)
@@ -45,7 +59,7 @@
   set text(font: font-family, size: font-size, lang: "en")
   set par(justify: true, first-line-indent: 0pt)
 
-  if num_of_authors > 1 {
+  if author-list.len() > 1 {
     // ── Multi-author table header ──────────────────────────────────────────
     if course != none {
       align(center)[*Course:* #course]
