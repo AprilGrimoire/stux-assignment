@@ -10,6 +10,7 @@
   theme: "teal", // available: "teal", "purple", "brown", "red", "gray"
   // font-size: 11pt,
   // font-family: "Linux Libertine",
+  // show-solutions: false,
 )
 
 #problem()[

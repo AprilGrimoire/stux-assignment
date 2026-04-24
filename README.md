@@ -128,11 +128,13 @@ Defaults are `11pt` and `"Linux Libertine"`.
 | `theme`       | `"teal"`                            | Theme name or custom `(bg: …, fr: …)` dict   |
 | `font-size`   | `11pt`                              | Document font size                           |
 | `font-family` | `"Linux Libertine"`                 | Document font family                         |
+| `show-solutions` | `true`                           | Whether to render `#solution` blocks         |
 
 ## Template Functions
 
 - **`#problem(title: none)[…]`** — Numbered problem box styled with the active theme. Optional `title` appears after the number.
-- **`#solution[…]`** — Indented solution block with an italic "Solution:" label.
+- **`#solution[…]`** — Indented solution block with an italic "Solution:" label. Hidden when `show-solutions: false`.
+>>>>>>> 365fff2 (Add solution toggle)
 
 
 ## License

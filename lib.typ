@@ -9,6 +9,7 @@
 
 // Internal state to share theme colors with problem/solution functions
 #let _theme-state = state("assignment-theme", themes.teal)
+#let _show-solutions-state = state("assignment-show-solutions", true)
 
 // ── Assignment template ────────────────────────────────────────────────────────
 // Parameters:
@@ -17,6 +18,7 @@
 //   authors               — preferred array of (name, email, roll) dicts
 //   theme                 — theme name string ("teal", "purple", …) or custom (bg: …, fr: …) dictionary
 //   font-size, font-family — document-wide typography overrides
+//   show-solutions        — set to false to hide all solution blocks
 #let assignment(
   title: "Assignment",
   author: auto,
@@ -29,10 +31,12 @@
   theme: "teal",
   font-size: 11pt,
   font-family: "Linux Libertine",
+  show-solutions: true,
   body
 ) = {
   let colors = if type(theme) == str { themes.at(theme) } else { theme }
   _theme-state.update(colors)
+  _show-solutions-state.update(show-solutions)
 
   let authors-provided = authors != auto and authors != none
   let legacy-author-fields-provided = author != auto or email != auto or roll != auto
@@ -139,7 +143,7 @@
     let colors = _theme-state.get()
     let p-num = problem-counter.display()
     block(
-      width: 100%,  
+      width: 100%,
       fill: colors.bg,
       stroke: (left: 2pt + colors.fr),
       radius: 5pt,
@@ -157,19 +161,21 @@
 
 // ── Solution block ─────────────────────────────────────────────────────────────
 #let solution(body) = {
-  context{
-  let colors = _theme-state.get()
-  block(
-    width: 100%,
-    breakable: true,
-    inset: (top: 0.5em, bottom: 0.5em, left: 1.5em, right: 1em),
-    [
-      #text(style: "italic", weight: "bold")[Solution:]
-      #parbreak()
-      #body
-    ]
-  )}
-  v(0.5cm)
+  context {
+    if _show-solutions-state.get() {
+      block(
+        width: 100%,
+        breakable: true,
+        inset: (top: 0.5em, bottom: 0.5em, left: 1.5em, right: 1em),
+        [
+          #text(style: "italic", weight: "bold")[Solution:]
+          #parbreak()
+          #body
+        ]
+      )
+      v(0.5cm)
+    }
+  }
 }
 
 
